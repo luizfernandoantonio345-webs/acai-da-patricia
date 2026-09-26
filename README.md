@@ -1,15 +1,50 @@
-# Açaí da Patrícia — Comanda digital
+<div align="center">
 
-Sistema de comanda presencial. O cliente escaneia o QR da comanda na mesa, pede pelo celular,
-a cozinha recebe em tempo real, e o pagamento é feito no caixa (PIX ou maquininha).
+# Açaí da Patrícia — Comanda Digital
 
-**Stack:** Next.js (React) + TypeScript + Tailwind + Supabase (Postgres + Realtime). Deploy grátis na Vercel.
+**Pedido pelo QR code da mesa, cozinha em tempo real, fechamento no caixa**
 
-## Telas
+![Next.js](https://img.shields.io/badge/Next.js_14-000000?logo=nextdotjs&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)
+![Supabase](https://img.shields.io/badge/Supabase-Postgres_+_Realtime-3ECF8E?logo=supabase&logoColor=white)
+![Tailwind](https://img.shields.io/badge/Tailwind-06B6D4?logo=tailwindcss&logoColor=white)
+![Vercel](https://img.shields.io/badge/Vercel-000000?logo=vercel&logoColor=white)
 
-- `/c/<token>` — **Cliente**: cardápio, montador de açaí guiado, envia pedido, vê a conta em tempo real.
-- `/balcao` — **Balcão/cozinha**: pedidos caindo ao vivo (com som), muda status, fecha a comanda no caixa.
-- `/admin` — **Admin**: liga/desliga produto, marca esgotado, muda preço e gera os QR das 15 comandas pra imprimir.
+[**Abrir demo**](https://a-a-da-patr-cia.vercel.app)
+
+</div>
+
+---
+
+Sistema de comanda presencial feito para uma açaiteria real. Cada mesa tem um cartão com QR code:
+o cliente escaneia, monta o açaí no celular e envia o pedido, que **aparece na hora no balcão** com aviso sonoro.
+A conta da comanda é atualizada em tempo real e o pagamento é feito no caixa (Pix ou maquininha).
+
+## Três telas, três perfis
+
+| Rota | Quem usa | O que faz |
+|---|---|---|
+| `/c/<token>` | Cliente (sem login) | Cardápio, montador de açaí guiado por etapas, envio do pedido, conta ao vivo |
+| `/balcao` | Balcão / cozinha | Pedidos chegando em tempo real com som, mudança de status, fechamento da comanda |
+| `/admin` | Dona da loja | Liga/desliga produtos, marca esgotado, altera preços, gera e imprime os QR das comandas |
+
+## Arquitetura
+
+```
+Celular do cliente ──(QR: /c/<token>)──► Next.js (Vercel)
+                                              │
+                                              ▼
+                              Supabase ── Postgres + Row Level Security
+                                              │   (Realtime / websockets)
+                                              ▼
+                                   Tela do balcão atualiza sozinha
+```
+
+- **Sem backend próprio para manter**: regras de acesso ficam no banco via **Row Level Security** —
+  cardápio público para leitura, escrita só para a equipe autenticada, cliente anônimo só cria pedido na própria comanda
+- **Token por comanda** no QR, em vez de número de mesa adivinhável
+- **Modelo de opções flexível** (`option_groups` / `options`) para montar o açaí com tamanho, complementos e adicionais
+- Custo de infraestrutura zero no plano gratuito de Vercel + Supabase
 
 ## Passo a passo pra colocar no ar
 
